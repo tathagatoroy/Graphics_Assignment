@@ -1,3 +1,4 @@
+#define GLM_ENABLE_EXPERIMENTAL
 #include <iostream>
 #include <cmath>
 #include <fstream>
@@ -17,6 +18,7 @@ using namespace std;
 
 /* Initialise glfw window, I/O callbacks and the renderer to use */
 /* Nothing to Edit here */
+/*Initialisation*/
 GLFWwindow*initGLFW(int width, int height) {
     GLFWwindow *window; // window desciptor/handle
 
@@ -31,7 +33,7 @@ GLFWwindow*initGLFW(int width, int height) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     window = glfwCreateWindow(width, height, "Sample OpenGL 3.3 Application", NULL, NULL);
-
+    //terminate if error in creating windows
     if (!window) {
         glfwTerminate();
         // exit(EXIT_FAILURE);

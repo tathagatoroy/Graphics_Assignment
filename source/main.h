@@ -1,13 +1,17 @@
 #ifndef MAIN_H
 #define MAIN_H
+#define GLM_ENABLE_EXPERIMENTAL
 
 #include <iostream>
 #include <cmath>
 #include <fstream>
 #include <vector>
-
+#include<string.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include<utility>
+#include<stack>
+#include<algorithm>
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -38,6 +42,8 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 void error_callback(int error, const char *description);
 void quit(GLFWwindow *window);
 void reshapeWindow(GLFWwindow *window, int width, int height);
+
+//graph.cpp
 
 // Types
 struct VAO {

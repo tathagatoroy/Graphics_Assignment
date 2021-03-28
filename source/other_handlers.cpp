@@ -1,3 +1,4 @@
+#define GLM_ENABLE_EXPERIMENTAL
 #include <iostream>
 #include <cmath>
 #include <fstream>
@@ -14,11 +15,11 @@
 #include "main.h"
 
 using namespace std;
-
+//handles error
 void error_callback(int error, const char *description) {
     fprintf(stderr, "Error: %s\n", description);
 }
-
+//quits on press key
 void quit(GLFWwindow *window) {
     glfwDestroyWindow(window);
     glfwTerminate();

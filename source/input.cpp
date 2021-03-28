@@ -1,3 +1,6 @@
+//code for mouse and keyboard input
+
+#define GLM_ENABLE_EXPERIMENTAL
 #include <iostream>
 #include <cmath>
 #include <fstream>
