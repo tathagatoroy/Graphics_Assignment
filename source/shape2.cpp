@@ -12,7 +12,7 @@ Shape2::Shape2(float x, float y, color_t color) {
     // A cube has 6 faces with 2 triangles each, so this makes 6*2=12 triangles, and 12*3 vertices
     static const GLfloat vertex_buffer_data[] = {
     
-    cos((0.0f/11)*pi),sin((0.0f/11)*pi),0.0f,
+    /*cos((0.0f/11)*pi),sin((0.0f/11)*pi),0.0f,
     cos((1.0f/11)*pi),sin((1.0f/11)*pi),0.0f,
     0.0f,0.0f,0.0f,
 
@@ -119,8 +119,27 @@ Shape2::Shape2(float x, float y, color_t color) {
     cos((10.0f/11)*pi),sin((10.0f/11)*pi),0.0f,
     cos((0.0f/11)*pi),sin((0.0f/11)*pi),0.0f,
     0.0f,0.0f,2.0f
-
+   */
+    0.0f,0.0f,0.0f,
+    0.0f,1.0f,0.0f,
     
+    0.0f,1.0f,0.0f,
+    0.0f,2.0f,0.0f,
+
+    0.0f,2.0f,0.0f,
+    1.0f,2.0f,0.0f,
+
+    1.0f,2.0f,0.0f,
+    1.0f,1.0f,0.0f,
+    
+    1.0f,1.0f,0.0f,
+    1.0f,0.0f,0.0f,
+
+    1.0f,0.0f,0.0f,
+    0.0f,0.0f,0.0f,
+
+    1.0f,1.0f,0.0f,
+    0.0f,1.0f,0.0f
 
         
     };
@@ -132,6 +151,7 @@ Shape2::Shape2(float x, float y, color_t color) {
 0.114,0.477,0.609,
 0.711,0.296,0.619,
 0.261,0.624,0.106,
+/*
 0.734,0.414,0.498,
 0.094,0.403,0.288,
 0.297,0.84,0.095,
@@ -191,12 +211,13 @@ Shape2::Shape2(float x, float y, color_t color) {
 0.29,0.955,0.461,
 0.084,0.339,0.12,
 0.292,0.407,0.203
+*/
       
 
 
 
     };
-    this->object = create3DObject(GL_TRIANGLES, 22*3, vertex_buffer_data, color_buffer_data, GL_FILL);
+    this->object = create3DObject(GL_LINES, 7*2, vertex_buffer_data, COLOR_BLACK, GL_FILL);
 }
 
 void Shape2::draw(glm::mat4 VP) {

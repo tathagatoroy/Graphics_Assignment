@@ -5,6 +5,8 @@
 #include "shape2.h"
 #include "shape3.h"
 #include "glm/ext.hpp"
+#include "maze.h"
+
 
 
 using namespace std;
@@ -19,7 +21,7 @@ GLFWwindow *window;
 
 Ball ball1;
 Shape1 first;
-Shape2 second;
+Maze second;
 Shape3 third;
 int object = -1;
 
@@ -27,13 +29,13 @@ int object = -1;
 
 float screen_zoom = 1, screen_center_x = 0, screen_center_y = 0;
 float camera_rotation_angle = 0;
-float camera_x = 5*cos(camera_rotation_angle*M_PI/180.0f);
+float camera_x = 0;
 float camera_y = 0;
-float camera_z = 5*sin(camera_rotation_angle*M_PI/180.0f);
-float target_x = camera_x-5*cos(camera_rotation_angle*M_PI/180.0f);
-float target_y = camera_y;
-float target_z = camera_z;
-float rotate = 0;
+float camera_z = 100;
+float target_x = 0;
+float target_y = 0;
+float target_z = 0;
+float rotate1 = 0;
 
 
 Timer t60(1.0 / 60);
@@ -184,7 +186,7 @@ if(object == 3)
   }
   else if(key == GLFW_KEY_R && action == GLFW_PRESS)
   {
-    if(rotate == 0)
+    if(rotate1 == 0)
     {
         cout<<"rotate"<<endl;
         third.set_position(0.0f,0.0f);
@@ -195,12 +197,13 @@ if(object == 3)
         target_x = 0;
         target_y = 0;
         target_z = 0;
-        rotate = 1;
+        rotate1 = 1;
     }
-    else rotate = 0;
+    else rotate1 = 0;
     
   }
 }
+/*
 else if(object == 2)
 {
     cout<<"object 2"<<endl;
@@ -269,7 +272,7 @@ else if(object == 2)
        /*cout<<"camera position : "<<camera_x<<" "<<camera_y<<" "<<camera_z<<endl;
        cout<<"target position : "<<target_x<<" "<<target_y<<" "<<target_z<<endl;
        cout<<"object position : "<<third.position.x<<" "<<third.position.y<<" "<<third.position.y<<endl;
-   */}
+   }
    
    //teleport to the (3,3,3)
    else if(key == GLFW_KEY_O && action == GLFW_PRESS)
@@ -283,7 +286,7 @@ else if(object == 2)
       /* cout<<"camera position : "<<camera_x<<" "<<camera_y<<" "<<camera_z<<endl;
        cout<<"target position : "<<target_x<<" "<<target_y<<" "<<target_z<<endl;
        cout<<"object position : "<<third.position.x<<" "<<third.position.y<<" "<<third.position.y<<endl;
-  */ }
+   }
   //rotate about y axis
   else if(key == GLFW_KEY_P && action == GLFW_PRESS)
   {
@@ -291,7 +294,7 @@ else if(object == 2)
   }
   else if(key == GLFW_KEY_R && action == GLFW_PRESS)
   {
-    if(rotate == 0)
+    if(rotate1 == 0)
     {
         cout<<"rotate"<<endl;
         second.set_position(0.0f,0.0f);
@@ -302,12 +305,12 @@ else if(object == 2)
         target_x = 0;
         target_y = 0;
         target_z = 0;
-        rotate = 1;
+        rotate1 = 1;
     }
-    else rotate = 0;
+    else rotate1 = 0;
     
   }
-}
+}*/
 else if(object == 1)
 {
     if(key == GLFW_KEY_A && action == GLFW_PRESS)
@@ -397,7 +400,7 @@ else if(object == 1)
   }
   else if(key == GLFW_KEY_R && action == GLFW_PRESS)
   {
-    if(rotate == 0)
+    if(rotate1 == 0)
     {
         cout<<"rotate"<<endl;
         first.set_position(0.0f,0.0f);
@@ -408,9 +411,9 @@ else if(object == 1)
         target_x = 0;
         target_y = 0;
         target_z = 0;
-        rotate = 1;
+        rotate1 = 1;
     }
-    else rotate = 0;
+    else rotate1 = 0;
     
   }
 }
@@ -459,11 +462,10 @@ void tick_elements() {
     //ball1.tick();
     if(object == 3)
     third.tick();
-    else if(object == 2)
-    second.tick();
+
     else 
     first.tick();
-    if(rotate  == 1)
+    if(rotate1  == 1)
     {
         camera_rotation_angle += 1;
         camera_x = 5*cos(camera_rotation_angle*M_PI/180.0f);
@@ -479,8 +481,8 @@ void initGL(GLFWwindow *window, int width, int height) {
     // Create the models
 
     ball1       = Ball(0, 0, COLOR_RED);
-    first     = Shape1(0, 0, COLOR_RED);
-    second         = Shape2(0,0,COLOR_RED);
+    second    = Maze(0, 0, COLOR_RED);
+    first         = Shape1(0,0,COLOR_RED);
     third       = Shape3(0,0, COLOR_RED);
 
     // Create and compile our GLSL program from the shaders
