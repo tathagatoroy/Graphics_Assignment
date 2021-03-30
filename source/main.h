@@ -87,5 +87,8 @@ extern const color_t COLOR_RED;
 extern const color_t COLOR_GREEN;
 extern const color_t COLOR_BLACK;
 extern const color_t COLOR_BACKGROUND;
+/*extern const int HASH_CONSTANT = 1234;
+extern const int HEIGHT = 20;
+extern const int WIDTH = 20;*/
 
 #endif

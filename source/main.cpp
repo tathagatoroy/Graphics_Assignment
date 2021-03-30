@@ -6,6 +6,7 @@
 #include "shape3.h"
 #include "glm/ext.hpp"
 #include "maze.h"
+#include "player.h"
 
 
 
@@ -23,17 +24,18 @@ Ball ball1;
 Shape1 first;
 Maze second;
 Shape3 third;
+Player hero;
 int object = -1;
 
 
 
 float screen_zoom = 1, screen_center_x = 0, screen_center_y = 0;
 float camera_rotation_angle = 0;
-float camera_x = 0;
-float camera_y = 0;
-float camera_z = 100;
-float target_x = 0;
-float target_y = 0;
+float camera_x = 10;
+float camera_y = 10;
+float camera_z = 35;
+float target_x = 10;
+float target_y = 10;
 float target_z = 0;
 float rotate1 = 0;
 
@@ -87,391 +89,71 @@ void draw() {
     glm::mat4 MVP;  // MVP = Projection * View * Model
       
     // Scene render
-    if(object == 1)
-    first.draw(VP);
-    else if(object == 2)
+  
     second.draw(VP);
-    else
-    third.draw(VP);
+    hero.draw(VP);
+    
 }
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {//move objects
-cout<<"object "<<object<<endl;
+/*cout<<"object "<<object<<endl;
 if(object == 3)
 {
    if(key == GLFW_KEY_A && action == GLFW_PRESS)
    third.up();
-   else if(key == GLFW_KEY_B && action == GLFW_PRESS)
-   third.down();
-   else if(key == GLFW_KEY_C && action == GLFW_PRESS)
-   third.right();
-   else if(key == GLFW_KEY_D && action == GLFW_PRESS)
-   third.left();
-   else if(key == GLFW_KEY_E && action == GLFW_PRESS)
-   third.front();
-   else if(key == GLFW_KEY_F && action == GLFW_PRESS)
-   third.back();
-   //move camera 
-   else if(key == GLFW_KEY_G && action == GLFW_PRESS)
-   {
-       camera_x += 1;
-       target_x += 1;
-   }
-   else if(key == GLFW_KEY_H && action == GLFW_PRESS)
-   {
-       camera_x -= 1;
-       target_x -= 1;
-   }
-   else if(key == GLFW_KEY_I && action == GLFW_PRESS)
-   {
-       camera_y += 1;
-       target_y += 1;
-   }
-   else if(key == GLFW_KEY_J && action == GLFW_PRESS)
-   {
-       camera_y -= 1;
-       target_y -= 1;
-   }
-   else if(key == GLFW_KEY_K && action == GLFW_PRESS)
-   {
-       camera_z += 1;
-       target_z += 1;
-   }
-   else if(key == GLFW_KEY_L && action == GLFW_PRESS)
-   {
-       camera_z -= 1;
-       target_z -= 1;
-   }
-   //teleport to the (0,0,0)
-   else if(key == GLFW_KEY_M && action == GLFW_PRESS)
-   {
-       camera_x = 5;
-       camera_y = 0;
-       camera_z = 0;
-       target_x = third.position.x;
-       target_y = third.position.y;
-       target_z = third.position.z;
-   }
-   //teleport to top (0,0,5)
-   else if(key == GLFW_KEY_N && action == GLFW_PRESS)
-   {
-       camera_y = 0;
-       camera_x = 0;
-       camera_z = 5;
-       target_x = third.position.x;
-       target_y = third.position.y;
-       target_z = third.position.z;
-       /*cout<<"camera position : "<<camera_x<<" "<<camera_y<<" "<<camera_z<<endl;
-       cout<<"target position : "<<target_x<<" "<<target_y<<" "<<target_z<<endl;
-       cout<<"object position : "<<third.position.x<<" "<<third.position.y<<" "<<third.position.y<<endl;
-   */}
+  */
+  if(key == GLFW_KEY_W && action == GLFW_PRESS){
+      int cur_x = hero.position.x;
+      int cur_y = hero.position.y;
+      int next_y = hero.position.y+1;
+      int next_x = cur_x;
+      /*
+      wall between (y,x),(y+1,x) is horizontal wall is (y+1,x) and (y+1,x+1)
+      */
+      if(next_y <= HEIGHT && second.graph[next_y][cur_x][next_y][cur_x + 1] == 0)
+        hero.move_up();
+  }
+  if(key == GLFW_KEY_A && action == GLFW_PRESS){
+      int cur_x = hero.position.x;
+      int cur_y = hero.position.y;
+      int next_y = hero.position.y;
+      int next_x = cur_x - 1;
+      /*
+      wall between (y,x),(y,x-1) is vertical wall is (y,x) and (y+1,x)
+      */
+      if(next_x >= 0 && second.graph[cur_y][cur_x][cur_y + 1][cur_x] == 0)
+        hero.move_left();
+  }
+  if(key == GLFW_KEY_S && action == GLFW_PRESS){
+      int cur_x = hero.position.x;
+      int cur_y = hero.position.y;
+      int next_y = hero.position.y-1;
+      int next_x = cur_x;
+      /*
+      wall between (y,x),(y-1,x) is horizontal wall is (y,x) and (y,x+1)
+      */
+      if(next_y >= 0 && second.graph[cur_y][cur_x][cur_y][cur_x + 1] == 0)
+        hero.move_down();
+  }
+  if(key == GLFW_KEY_D && action == GLFW_PRESS){
+      int cur_x = hero.position.x;
+      int cur_y = hero.position.y;
+      int next_y = hero.position.y;
+      int next_x = cur_x + 1;
+      /*
+      wall between (y,x),(y,x+1) is vertical wall is (y,x+1) and (y+1,x+1)
+      */
+      if(next_x <= WIDTH && second.graph[cur_y][cur_x+1][cur_y + 1][cur_x+1] == 0)
+        hero.move_right();
+  }
+}
    
-   //teleport to the (3,3,3)
-   else if(key == GLFW_KEY_O && action == GLFW_PRESS)
-   {
-       camera_y = 3;
-       camera_x = 3;
-       camera_z = 3;
-       target_x = third.position.x;
-       target_y = third.position.y;
-       target_z = third.position.z;
-      /* cout<<"camera position : "<<camera_x<<" "<<camera_y<<" "<<camera_z<<endl;
-       cout<<"target position : "<<target_x<<" "<<target_y<<" "<<target_z<<endl;
-       cout<<"object position : "<<third.position.x<<" "<<third.position.y<<" "<<third.position.y<<endl;
-  */ }
-  //rotate about y axis
-  else if(key == GLFW_KEY_P && action == GLFW_PRESS)
-  {
-      third.rotate();
-  }
-  else if(key == GLFW_KEY_R && action == GLFW_PRESS)
-  {
-    if(rotate1 == 0)
-    {
-        cout<<"rotate"<<endl;
-        third.set_position(0.0f,0.0f);
-        //recentering
-        camera_x = 5;
-        camera_y = 0;
-        camera_z = 0;
-        target_x = 0;
-        target_y = 0;
-        target_z = 0;
-        rotate1 = 1;
-    }
-    else rotate1 = 0;
-    
-  }
-}
-/*
-else if(object == 2)
-{
-    cout<<"object 2"<<endl;
-    if(key == GLFW_KEY_A && action == GLFW_PRESS)
-   second.up();
-   else if(key == GLFW_KEY_B && action == GLFW_PRESS)
-   second.down();
-   else if(key == GLFW_KEY_C && action == GLFW_PRESS)
-   second.right();
-   else if(key == GLFW_KEY_D && action == GLFW_PRESS)
-   second.left();
-   else if(key == GLFW_KEY_E && action == GLFW_PRESS)
-   second.front();
-   else if(key == GLFW_KEY_F && action == GLFW_PRESS)
-   second.back();
-   //move camera 
-   else if(key == GLFW_KEY_G && action == GLFW_PRESS)
-   {
-       camera_x += 1;
-       target_x += 1;
-   }
-   else if(key == GLFW_KEY_H && action == GLFW_PRESS)
-   {
-       camera_x -= 1;
-       target_x -= 1;
-   }
-   else if(key == GLFW_KEY_I && action == GLFW_PRESS)
-   {
-       camera_y += 1;
-       target_y += 1;
-   }
-   else if(key == GLFW_KEY_J && action == GLFW_PRESS)
-   {
-       camera_y -= 1;
-       target_y -= 1;
-   }
-   else if(key == GLFW_KEY_K && action == GLFW_PRESS)
-   {
-       camera_z += 1;
-       target_z += 1;
-   }
-   else if(key == GLFW_KEY_L && action == GLFW_PRESS)
-   {
-       camera_z -= 1;
-       target_z -= 1;
-   }
-   //teleport to the (0,0,0)
-   else if(key == GLFW_KEY_M && action == GLFW_PRESS)
-   {
-       camera_x = 5;
-       camera_y = 0;
-       camera_z = 0;
-       target_x = second.position.x;
-       target_y = second.position.y;
-       target_z = second.position.z;
-   }
-   //teleport to top (0,0,5)
-   else if(key == GLFW_KEY_N && action == GLFW_PRESS)
-   {
-       camera_y = 0;
-       camera_x = 0;
-       camera_z = 5;
-       target_x = second.position.x;
-       target_y = second.position.y;
-       target_z = second.position.z;
-       /*cout<<"camera position : "<<camera_x<<" "<<camera_y<<" "<<camera_z<<endl;
-       cout<<"target position : "<<target_x<<" "<<target_y<<" "<<target_z<<endl;
-       cout<<"object position : "<<third.position.x<<" "<<third.position.y<<" "<<third.position.y<<endl;
-   }
-   
-   //teleport to the (3,3,3)
-   else if(key == GLFW_KEY_O && action == GLFW_PRESS)
-   {
-       camera_y = 3;
-       camera_x = 3;
-       camera_z = 3;
-       target_x = second.position.x;
-       target_y = second.position.y;
-       target_z = second.position.z;
-      /* cout<<"camera position : "<<camera_x<<" "<<camera_y<<" "<<camera_z<<endl;
-       cout<<"target position : "<<target_x<<" "<<target_y<<" "<<target_z<<endl;
-       cout<<"object position : "<<third.position.x<<" "<<third.position.y<<" "<<third.position.y<<endl;
-   }
-  //rotate about y axis
-  else if(key == GLFW_KEY_P && action == GLFW_PRESS)
-  {
-      second.rotate();
-  }
-  else if(key == GLFW_KEY_R && action == GLFW_PRESS)
-  {
-    if(rotate1 == 0)
-    {
-        cout<<"rotate"<<endl;
-        second.set_position(0.0f,0.0f);
-        //recentering
-        camera_x = 5;
-        camera_y = 0;
-        camera_z = 0;
-        target_x = 0;
-        target_y = 0;
-        target_z = 0;
-        rotate1 = 1;
-    }
-    else rotate1 = 0;
-    
-  }
-}*/
-else if(object == 1)
-{
-    if(key == GLFW_KEY_A && action == GLFW_PRESS)
-   first.up();
-   else if(key == GLFW_KEY_B && action == GLFW_PRESS)
-   first.down();
-   else if(key == GLFW_KEY_C && action == GLFW_PRESS)
-   first.right();
-   else if(key == GLFW_KEY_D && action == GLFW_PRESS)
-   first.left();
-   else if(key == GLFW_KEY_E && action == GLFW_PRESS)
-   first.front();
-   else if(key == GLFW_KEY_F && action == GLFW_PRESS)
-   first.back();
-   //move camera 
-   else if(key == GLFW_KEY_G && action == GLFW_PRESS)
-   {
-       camera_x += 1;
-       target_x += 1;
-   }
-   else if(key == GLFW_KEY_H && action == GLFW_PRESS)
-   {
-       camera_x -= 1;
-       target_x -= 1;
-   }
-   else if(key == GLFW_KEY_I && action == GLFW_PRESS)
-   {
-       camera_y += 1;
-       target_y += 1;
-   }
-   else if(key == GLFW_KEY_J && action == GLFW_PRESS)
-   {
-       camera_y -= 1;
-       target_y -= 1;
-   }
-   else if(key == GLFW_KEY_K && action == GLFW_PRESS)
-   {
-       camera_z += 1;
-       target_z += 1;
-   }
-   else if(key == GLFW_KEY_L && action == GLFW_PRESS)
-   {
-       camera_z -= 1;
-       target_z -= 1;
-   }
-   //teleport to the (0,0,0)
-   else if(key == GLFW_KEY_M && action == GLFW_PRESS)
-   {
-       camera_x = 5;
-       camera_y = 0;
-       camera_z = 0;
-       target_x = first.position.x;
-       target_y = first.position.y;
-       target_z = first.position.z;
-   }
-   //teleport to top (0,0,5)
-   else if(key == GLFW_KEY_N && action == GLFW_PRESS)
-   {
-       camera_y = 0;
-       camera_x = 0;
-       camera_z = 5;
-       target_x = first.position.x;
-       target_y = first.position.y;
-       target_z = first.position.z;
-       /*cout<<"camera position : "<<camera_x<<" "<<camera_y<<" "<<camera_z<<endl;
-       cout<<"target position : "<<target_x<<" "<<target_y<<" "<<target_z<<endl;
-       cout<<"object position : "<<third.position.x<<" "<<third.position.y<<" "<<third.position.y<<endl;
-   */}
-   
-   //teleport to the (3,3,3)
-   else if(key == GLFW_KEY_O && action == GLFW_PRESS)
-   {
-       camera_y = 3;
-       camera_x = 3;
-       camera_z = 3;
-       target_x = first.position.x;
-       target_y = first.position.y;
-       target_z = first.position.z;
-      /* cout<<"camera position : "<<camera_x<<" "<<camera_y<<" "<<camera_z<<endl;
-       cout<<"target position : "<<target_x<<" "<<target_y<<" "<<target_z<<endl;
-       cout<<"object position : "<<third.position.x<<" "<<third.position.y<<" "<<third.position.y<<endl;
-  */ }
-  //rotate about x axis
-  else if(key == GLFW_KEY_P && action == GLFW_PRESS)
-  {
-      first.rotate();
-  }
-  else if(key == GLFW_KEY_R && action == GLFW_PRESS)
-  {
-    if(rotate1 == 0)
-    {
-        cout<<"rotate"<<endl;
-        first.set_position(0.0f,0.0f);
-        //recentering
-        camera_x = 5;
-        camera_y = 0;
-        camera_z = 0;
-        target_x = 0;
-        target_y = 0;
-        target_z = 0;
-        rotate1 = 1;
-    }
-    else rotate1 = 0;
-    
-  }
-}
 
-}
-
-
-void tick_input(GLFWwindow *window) {
-   /* int left  = glfwGetKey(window, GLFW_KEY_LEFT);
-    int right = glfwGetKey(window, GLFW_KEY_RIGHT);
-    int up =   glfwGetKey(window, GLFW_KEY_UP);
-    int down = glfwGetKey(window, GLFW_KEY_DOWN);
-    int front = glfwGetKey(window, GLFW_KEY_A);
-    int back = glfwGetKey(window, GLFW_KEY_B);*/
-    /*if (left == GLFW_PRESS) {
-        third.left();
-        cout<<"left"<<endl;
-        // Do something
-    }
-    else if(right == GLFW_PRESS) {
-        third.right();
-        cout<<"right"<<endl;
-    }
-    else if(up == GLFW_PRESS) {
-        third.up();
-        cout<<"up"<<endl;
-    }
-    else if(down == GLFW_PRESS)
-    {
-        third.down();
-        cout<<"down"<<endl;
-    }
-    else if(front == GLFW_PRESS)
-    {
-        third.front();
-        cout<<"front"<<endl;
-    }
-    else if(back == GLFW_PRESS)
-    {
-        third.back();
-        cout<<"back"<<endl;
-    }*/
-}
 
 void tick_elements() {
     //ball1.tick();
-    if(object == 3)
-    third.tick();
+  
 
-    else 
-    first.tick();
-    if(rotate1  == 1)
-    {
-        camera_rotation_angle += 1;
-        camera_x = 5*cos(camera_rotation_angle*M_PI/180.0f);
-        camera_y = 0;
-        camera_z = 5*sin(camera_rotation_angle*M_PI/180.0f);
-    }
 }
 
 /* Initialize the OpenGL rendering properties */
@@ -484,6 +166,7 @@ void initGL(GLFWwindow *window, int width, int height) {
     second    = Maze(0, 0, COLOR_RED);
     first         = Shape1(0,0,COLOR_RED);
     third       = Shape3(0,0, COLOR_RED);
+    hero       = Player(5.50,5.50,COLOR_RED);
 
     // Create and compile our GLSL program from the shaders
     programID = LoadShaders("../source/shaders/shader.vert", "../source/shaders/shader.frag");
@@ -507,25 +190,8 @@ void initGL(GLFWwindow *window, int width, int height) {
 }
 
 
-int main(int argc, char **argv) {
-    cout<<argc<<endl;
-    for(int i=0;i<argc;i++)
-    cout<<i<<" "<<argv[i]<<endl;
-    if(argc !=  2)
-    exit(1);
-    else if(strcmp(argv[1],"1") == 0){
-    object = 1;
-    //cout<<"oho"<<endl;
-    }
-    else if(strcmp(argv[1],"2") == 0)
-    {
-        object =2;
-    }
-
-    else if(strcmp(argv[1],"3") == 0)
-    object = 3;
-    else 
-    exit(1);
+int main() {
+   
     srand(time(0));
     int width  = 600;
     int height = 600;
@@ -548,7 +214,7 @@ int main(int argc, char **argv) {
             glfwSwapBuffers(window);
 
             tick_elements();
-            tick_input(window);
+          //  tick_input(window);
         }
 
         // Poll for Keyboard and mouse events
