@@ -12,6 +12,7 @@
 #include<utility>
 #include<stack>
 #include<algorithm>
+#include<unistd.h>
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -87,6 +88,9 @@ extern const color_t COLOR_RED;
 extern const color_t COLOR_GREEN;
 extern const color_t COLOR_BLACK;
 extern const color_t COLOR_BACKGROUND;
+extern const color_t COLOR_ONE;
+extern const color_t COLOR_TWO;
+extern const color_t COLOR_THREE;
 /*extern const int HASH_CONSTANT = 1234;
 extern const int HEIGHT = 20;
 extern const int WIDTH = 20;*/

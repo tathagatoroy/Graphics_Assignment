@@ -7,6 +7,8 @@
 #include "glm/ext.hpp"
 #include "maze.h"
 #include "player.h"
+#include "imposter.h"
+#include "powerups.h"
 
 
 
@@ -19,12 +21,15 @@ GLFWwindow *window;
 /**************************
 * Customizable functions *
 **************************/
-
-Ball ball1;
+Ball ball2;//powerup button
+Ball ball1; // kill villain
 Shape1 first;
-Maze second;
+Maze second; //maze ,sorry for the stupid name.Carried over from last assignment
 Shape3 third;
 Player hero;
+Imposter villain;
+Power obstacles[10];
+Power health[10];
 int object = -1;
 
 
@@ -92,7 +97,17 @@ void draw() {
   
     second.draw(VP);
     hero.draw(VP);
+    //cout<<villain.alive<<endl;
+  
+    //  cout<<"DRAWING VILLAIN"<<endl;
+    villain.draw(VP);
     
+    
+    ball1.draw(VP);
+    for(int i=0;i<10;i++){
+        health[i].draw(VP);
+        obstacles[i].draw(VP);
+    }
 }
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {//move objects
@@ -103,9 +118,9 @@ if(object == 3)
    third.up();
   */
   if(key == GLFW_KEY_W && action == GLFW_PRESS){
-      int cur_x = hero.position.x;
-      int cur_y = hero.position.y;
-      int next_y = hero.position.y+1;
+      int cur_x = (int)hero.position.x;
+      int cur_y = (int)hero.position.y;
+      int next_y = (int)(hero.position.y+1);
       int next_x = cur_x;
       /*
       wall between (y,x),(y+1,x) is horizontal wall is (y+1,x) and (y+1,x+1)
@@ -114,9 +129,9 @@ if(object == 3)
         hero.move_up();
   }
   if(key == GLFW_KEY_A && action == GLFW_PRESS){
-      int cur_x = hero.position.x;
-      int cur_y = hero.position.y;
-      int next_y = hero.position.y;
+      int cur_x = (int)hero.position.x;
+      int cur_y = (int)hero.position.y;
+      int next_y = (int)hero.position.y;
       int next_x = cur_x - 1;
       /*
       wall between (y,x),(y,x-1) is vertical wall is (y,x) and (y+1,x)
@@ -125,9 +140,9 @@ if(object == 3)
         hero.move_left();
   }
   if(key == GLFW_KEY_S && action == GLFW_PRESS){
-      int cur_x = hero.position.x;
-      int cur_y = hero.position.y;
-      int next_y = hero.position.y-1;
+      int cur_x = (int)hero.position.x;
+      int cur_y = (int)hero.position.y;
+      int next_y = (int)hero.position.y-1;
       int next_x = cur_x;
       /*
       wall between (y,x),(y-1,x) is horizontal wall is (y,x) and (y,x+1)
@@ -136,9 +151,9 @@ if(object == 3)
         hero.move_down();
   }
   if(key == GLFW_KEY_D && action == GLFW_PRESS){
-      int cur_x = hero.position.x;
-      int cur_y = hero.position.y;
-      int next_y = hero.position.y;
+      int cur_x = (int)hero.position.x;
+      int cur_y = (int)hero.position.y;
+      int next_y = (int)hero.position.y;
       int next_x = cur_x + 1;
       /*
       wall between (y,x),(y,x+1) is vertical wall is (y,x+1) and (y+1,x+1)
@@ -151,8 +166,114 @@ if(object == 3)
 
 
 void tick_elements() {
+
+
     //ball1.tick();
-  
+int cur_x = (int)hero.position.x;
+int cur_y  = (int)hero.position.y;
+int button_x = (int)ball1.position.x;
+int button_y = (int)ball1.position.y;
+int pow_x = (int)ball2.position.x;
+int pow_y = (int)ball2.position.y;
+//check you can kill the villain
+if(cur_x == button_x && button_y == cur_y)
+{
+    villain.kill();
+    ball1.eaten();
+}
+//check you can activate powerups
+if(cur_x == pow_x && cur_y == pow_y){
+    ball2.eaten();
+    for(int i=0;i<10;i++){
+        health[i].activate();
+        obstacles[i].activate();
+    }
+}
+//checking whether gained some powerups
+for(int i = 0;i<10;i++)
+{
+    int h_x = (int)health[i].position.x;
+    int h_y = (int)health[i].position.y;
+    if(cur_x == h_x && cur_y == h_y)
+    {
+        health[i].eaten();
+        hero.reduce_health(health[i].score);
+
+    }
+
+}
+for(int i = 0;i<10;i++)
+{
+    int h_x = (int)obstacles[i].position.x;
+    int h_y = (int)obstacles[i].position.y;
+    if(cur_x == h_x && cur_y == h_y)
+    {
+        obstacles[i].eaten();
+        hero.reduce_health(obstacles[i].score);
+
+    }
+
+}
+{
+    int h1_x = 
+}
+if(villain.alive == 1){
+    int v_x = (int)villain.position.x;
+    int v_y = (int)villain.position.y;
+    int dir = -1;
+    int mini = 1e6;
+    //NORTH
+    if(v_y + 1 < HEIGHT)
+    {
+        if(second.distance[v_y][v_x][v_y + 1][v_x] == 1){
+            if(second.distance[v_y + 1][v_x][cur_y][cur_x] < second.distance[v_y][v_x][cur_y][cur_x])
+            {
+            // cout<<"NORTH"<<endl;
+                dir = 1;
+                mini = second.distance[v_y + 1][v_x][cur_y][cur_x];
+            }
+        }
+    }
+    //SOUTH
+    if(v_y - 1 >= 0)
+    {
+        if(second.distance[v_y][v_x][v_y - 1][v_x] == 1){
+            if(second.distance[v_y - 1][v_x][cur_y][cur_x] < second.distance[v_y][v_x][cur_y][cur_x])
+            {
+            //  cout<<"SOUTH"<<endl;
+                dir = 2;
+                mini = second.distance[v_y - 1][v_x][cur_y][cur_x];
+            }
+        }
+    }
+    //WEST
+    if(v_x + 1 < WIDTH)
+    {
+        if(second.distance[v_y][v_x][v_y][v_x + 1] == 1){
+            if(second.distance[v_y][v_x + 1][cur_y][cur_x] < second.distance[v_y][v_x][cur_y][cur_x])
+            {
+                //cout<<"WEST"<<endl;
+                dir = 3;
+                mini = second.distance[v_y][v_x + 1][cur_y][cur_x];
+            }
+        }
+    }
+    //EAST
+    if(v_x - 1 < WIDTH)
+    {
+        if(second.distance[v_y][v_x][v_y][v_x - 1] == 1){
+            if(second.distance[v_y][v_x - 1][cur_y][cur_x] < second.distance[v_y][v_x][cur_y][cur_x])
+            {
+            //   cout<<"EAST"<<endl;
+                dir = 4;
+                mini = second.distance[v_y][v_x - 1][cur_y][cur_x];
+            }
+        }
+    }
+
+    villain.tick(dir);
+}
+
 
 }
 
@@ -162,11 +283,33 @@ void initGL(GLFWwindow *window, int width, int height) {
     /* Objects should be created before any other gl function and shaders */
     // Create the models
 
-    ball1       = Ball(0, 0, COLOR_RED);
+    ball1       = Ball(13.50, 18.50, COLOR_GREEN);
+    ball2       = Ball(4.50,2.50,COLOR_THREE)
+
     second    = Maze(0, 0, COLOR_RED);
     first         = Shape1(0,0,COLOR_RED);
     third       = Shape3(0,0, COLOR_RED);
     hero       = Player(5.50,5.50,COLOR_RED);
+    villain    = Imposter(13.50,11.50,COLOR_RED);
+    for(int i = 0;i < 10; i++ )
+    {
+        int num = rand() % 400;//height *width;
+        int y = rand() / 20;
+        float y1 = (float)y + 0.50;
+        int x = rand() % 20;
+        float x1 = (float)x + 0.50;
+        int num1 = rand() % 400;
+        int a = rand() / 20;
+        float a1 = (float)a + 0.50;
+        int b = rand() % 20;
+        float b1 = (float)b + 0.50;
+        health[i] = Powerups(x1,y1,10,COLOR_TWO);
+        obstacles[i] = Powerups(b1,a1,-10,COLOR_ONE)
+
+    }
+
+    //create a adjacent list from the maze graph
+
 
     // Create and compile our GLSL program from the shaders
     programID = LoadShaders("../source/shaders/shader.vert", "../source/shaders/shader.frag");
@@ -212,7 +355,7 @@ int main() {
             draw();
             // Swap Frame Buffer in double buffering
             glfwSwapBuffers(window);
-
+            usleep(400000);
             tick_elements();
           //  tick_input(window);
         }

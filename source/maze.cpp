@@ -10,7 +10,22 @@ Maze::Maze(float x, float y, color_t color) {
         for(int j = 0;j<= WIDTH;j++){
             for(int k = 0;k<= HEIGHT;k++){
                 for(int l = 0;l <= WIDTH;l++)
-                this->graph[i][j][k][l] = 0;
+                {
+                    this->graph[i][j][k][l] = 0;
+                    
+            }
+        }
+    }
+    }
+    for(int i=0;i < HEIGHT;i++){
+        for(int j=0;j< WIDTH;j++){
+            for(int k=0;k< HEIGHT;k++){
+                for(int l =0;l < WIDTH;l++){
+                    if(i==k && j==l)
+                    this->distance[i][j][k][l] = 0;
+                    else
+                    this->distance[i][j][k][l] = 1e6;
+                }
             }
         }
     }
@@ -57,6 +72,50 @@ Maze::Maze(float x, float y, color_t color) {
 
    // this->object = create3DObject(GL_TRIANGLES, 3*3, vertex_buffer_data, color, GL_FILL);
    this->create_maze(HEIGHT,WIDTH);
+
+   for(int i=0;i<HEIGHT;i++){
+       for(int j=0;j<WIDTH;j++){
+           int sz = this->adj[i][j].size();
+           for(int k = 0;k<sz;k++ )
+           {
+               pair<int,int> node = this->adj[i][j].at(k);
+               this->distance[i][j][node.first][node.second] = 1;
+           }
+       }
+   }
+   //NOW FLOYD WARSHALL
+   for(int i=0;i<HEIGHT;i++)
+   {
+       for(int j=0;j<WIDTH;j++)
+       {
+           //vertex(i,j):i
+           for(int k = 0;k < HEIGHT;k++){
+               for(int l = 0;l < WIDTH;l++ ){
+                   
+
+                   //vertex (k,l): j
+                   for(int m = 0; m < HEIGHT; m++)
+                   {
+                       for(int n = 0; n < WIDTH;n++){
+
+                           this->distance[k][l][m][n] = min(this->distance[k][l][m][n],(this->distance[k][l][i][j] + this->distance[i][j][m][n]));
+                       }
+                   }
+               }
+           }
+           
+       }
+   }
+   for(int i=0;i<HEIGHT;i++)
+   {
+       for(int j=0;j<WIDTH;j++){
+           for(int k=0;k < HEIGHT;k++){
+               for(int l =0;l < WIDTH;l++){
+                 //  cout<<"DISTANCE_BETWEEN ("<<i<<","<<j<<") and ("<<k<<","<<l<<") is "<<this->distance[i][j][k][l]<<endl;
+               }
+           }
+       }
+   }
 }
 
 void Maze::draw(glm::mat4 VP) {
@@ -173,6 +232,10 @@ void Maze :: find_maze(pair<int,int> &current_node,stack<pair<int,int>> &path,ve
             pair<pair<int,int>,pair<int,int>> break_wall;
             break_wall.first = current_node;
             break_wall.second = next_node;
+            this->adj[current_node.first][current_node.second].push_back(next_node);
+            this->adj[next_node.first][next_node.second].push_back(current_node);
+            //cout<<"direction "<<direction<<endl;
+            //cout<<"("<<current_node.first<<","<<current_node.second<<") beside ("<<next_node.first<<","<<next_node.second<<")"<<endl;
             no_walls.push_back(break_wall);
             path.push(next_node);
 

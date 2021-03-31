@@ -1,23 +1,23 @@
 #include "main.h"
 
-#ifndef PLAYER_H
-#define PLAYER_H
+#ifndef IMPOSTER_H
+#define IMPOSTER_H
 
 
-class Player {
+class Imposter {
 public:
-    Player() {}
-    Player(float x, float y, color_t color);
+    Imposter() {}
+    Imposter(float x, float y, color_t color);
     glm::vec3 position;
-    int health;
+    int alive ;
     void draw(glm::mat4 VP);
     void set_position(float x, float y);
-    //void tick();
+    void tick(int direction);
     void move_up();
     void move_down();
     void move_left();
     void move_right();
-    void reduce_health(int x);
+    void kill();
 private:
     VAO *object;
 };
