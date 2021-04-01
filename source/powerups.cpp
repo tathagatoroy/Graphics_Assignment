@@ -13,13 +13,13 @@ Power::Power(float x, float y,int score, color_t color) {
     static const GLfloat vertex_buffer_data[] = {
         0.00,0.45,0.00,
         0.00,-0.45,0.00,
-        0.45,0.00,0.00,
+        -0.45,0.00,0.00,
 
         0.00,0.45,0.00,
         0.00,-0.45,0.00,
         0.45,0.00,0.00,
-    }
-
+    };
+   
     this->object = create3DObject(GL_TRIANGLES, 2*3, vertex_buffer_data, color, GL_FILL);
 }
 
@@ -33,8 +33,11 @@ void Power::draw(glm::mat4 VP) {
     glm::mat4 MVP = VP * Matrices.model;
     glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
     //cout<<"present : "<<this->present<<endl;
-    if(this->present == 1)
+    if(this->present == 1){
+ //       cout<<"DR"<<endl;
+   //     cout<<this->position.x<<" "<<this->position.y<<endl;
     draw3DObject(this->object);
+    }
 }
 
 void Power::set_position(float x, float y) {
@@ -45,6 +48,7 @@ void Power::eaten(){
 }
 void Power::activate(){
     this->present = 1;
+  //  cout<<1<<"aha"<<endl;
 }
 
 

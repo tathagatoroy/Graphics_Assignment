@@ -34,6 +34,15 @@ target_link_libraries(${PROJECT_NAME} "glad" "${CMAKE_DL_LIBS}")
 set(GLM_DIR "${LIB_DIR}/glm")
 target_include_directories(${PROJECT_NAME} PRIVATE "${GLM_DIR}")
 
+#freetype 
+set(FREETYPE_DIR "${LIB_DIR}/freetype")
+add_subdirectory("${FREETYPE_DIR}")
+target_link_libraries(${PROJECT_NAME} "freetype" "${FREETYPE_LIBRARIES}")
+target_include_directories(${PROJECT_NAME} PRIVATE "${FREETYPE_DIR}/include")
+
+
+
+
 # MAC
 include(FindPkgConfig)
 if (NOT APPLE)

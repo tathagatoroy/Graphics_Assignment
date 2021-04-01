@@ -9,10 +9,21 @@
 #include "player.h"
 #include "imposter.h"
 #include "powerups.h"
+#include "shader.h"
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+FT_Library  library;   /* handle to library     */
+FT_Face     face;      /* handle to face object */
+map<GLchar, Character> Characters;
+unsigned int vao, vbo;
 
 
 
 using namespace std;
+
+const unsigned int SCR_WIDTH = 600;
+const unsigned int SCR_HEIGHT = 600;
 
 GLMatrices Matrices;
 GLuint     programID;
@@ -47,13 +58,51 @@ float rotate1 = 0;
 
 Timer t60(1.0 / 60);
 
-/*test code to see how it works 
-float traingle[] = { 
-    0.0f,0.0f,
-    1.0f,1.0f,
-    -1.0f,-1.0f
+void RenderText(Shader &shader, std::string text, float x, float y, float scale, glm::vec3 color)
+{
+    // activate corresponding render state	
+    shader.use();
+    glUniform3f(glGetUniformLocation(shader.ID, "textColor"), color.x, color.y, color.z);
+    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(vao);
 
-};
+    // iterate through all characters
+    std::string::const_iterator c;
+    for (c = text.begin(); c != text.end(); c++) 
+    {
+        Character ch = Characters[*c];
+
+        float xpos = x + ch.Bearing.x * scale;
+        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+        float w = ch.Size.x * scale;
+        float h = ch.Size.y * scale;
+        // update VBO for each character
+        float vertices[6][4] = {
+            { xpos,     ypos + h,   0.0f, 0.0f },            
+            { xpos,     ypos,       0.0f, 1.0f },
+            { xpos + w, ypos,       1.0f, 1.0f },
+
+            { xpos,     ypos + h,   0.0f, 0.0f },
+            { xpos + w, ypos,       1.0f, 1.0f },
+            { xpos + w, ypos + h,   1.0f, 0.0f }           
+        };
+        // render glyph texture over quad
+        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+        // update content of VBO memory
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // be sure to use glBufferSubData and not glBufferData
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        // render quad
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+        x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+    }
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
@@ -96,18 +145,21 @@ void draw() {
     // Scene render
   
     second.draw(VP);
-    hero.draw(VP);
-    //cout<<villain.alive<<endl;
+    
+    cout<<villain.alive<<endl;
   
-    //  cout<<"DRAWING VILLAIN"<<endl;
-    villain.draw(VP);
+      cout<<"DRAWING VILLAIN"<<endl;
+    
     
     
     ball1.draw(VP);
+    ball2.draw(VP);
     for(int i=0;i<10;i++){
         health[i].draw(VP);
         obstacles[i].draw(VP);
     }
+    villain.draw(VP);
+    hero.draw(VP);
 }
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {//move objects
@@ -176,28 +228,31 @@ int button_y = (int)ball1.position.y;
 int pow_x = (int)ball2.position.x;
 int pow_y = (int)ball2.position.y;
 //check you can kill the villain
-if(cur_x == button_x && button_y == cur_y)
+if(cur_x == button_x && button_y == cur_y && ball1.present == 1)
 {
     villain.kill();
     ball1.eaten();
+    cout<<"VILLAIN DEAD"<<endl;
 }
 //check you can activate powerups
-if(cur_x == pow_x && cur_y == pow_y){
+if(cur_x == pow_x && cur_y == pow_y && ball2.present == 1){
     ball2.eaten();
     for(int i=0;i<10;i++){
         health[i].activate();
         obstacles[i].activate();
     }
+    cout<<"ACTIVATE"<<endl;
 }
 //checking whether gained some powerups
 for(int i = 0;i<10;i++)
 {
     int h_x = (int)health[i].position.x;
     int h_y = (int)health[i].position.y;
-    if(cur_x == h_x && cur_y == h_y)
+    if(cur_x == h_x && cur_y == h_y && health[i].present == 1)
     {
         health[i].eaten();
         hero.reduce_health(health[i].score);
+        cout<<"HEALTH GAINED"<<endl;
 
     }
 
@@ -206,17 +261,17 @@ for(int i = 0;i<10;i++)
 {
     int h_x = (int)obstacles[i].position.x;
     int h_y = (int)obstacles[i].position.y;
-    if(cur_x == h_x && cur_y == h_y)
+    if(cur_x == h_x && cur_y == h_y && obstacles[i].present == 1)
     {
         obstacles[i].eaten();
         hero.reduce_health(obstacles[i].score);
+        cout<<"HEALTH LOST"<<endl;
 
     }
+    //cout<<"HEALTH LOST"<<endl;
 
 }
-{
-    int h1_x = 
-}
+
 if(villain.alive == 1){
     int v_x = (int)villain.position.x;
     int v_y = (int)villain.position.y;
@@ -271,7 +326,8 @@ if(villain.alive == 1){
         }
     }
 
-    villain.tick(dir);
+    //villain.tick(dir);
+    villain.tick(-1);
 }
 
 
@@ -283,8 +339,8 @@ void initGL(GLFWwindow *window, int width, int height) {
     /* Objects should be created before any other gl function and shaders */
     // Create the models
 
-    ball1       = Ball(13.50, 18.50, COLOR_GREEN);
-    ball2       = Ball(4.50,2.50,COLOR_THREE)
+    ball1       = Ball(6.50, 8.50, COLOR_GREEN);
+    ball2       = Ball(4.50,2.50,COLOR_THREE);
 
     second    = Maze(0, 0, COLOR_RED);
     first         = Shape1(0,0,COLOR_RED);
@@ -294,17 +350,17 @@ void initGL(GLFWwindow *window, int width, int height) {
     for(int i = 0;i < 10; i++ )
     {
         int num = rand() % 400;//height *width;
-        int y = rand() / 20;
+        int y = num / 20;
         float y1 = (float)y + 0.50;
-        int x = rand() % 20;
+        int x = num % 20;
         float x1 = (float)x + 0.50;
         int num1 = rand() % 400;
-        int a = rand() / 20;
+        int a = num1 / 20;
         float a1 = (float)a + 0.50;
-        int b = rand() % 20;
+        int b = num1 % 20;
         float b1 = (float)b + 0.50;
-        health[i] = Powerups(x1,y1,10,COLOR_TWO);
-        obstacles[i] = Powerups(b1,a1,-10,COLOR_ONE)
+        health[i] = Power(x1,y1,10,COLOR_GOLD);
+        obstacles[i] = Power(b1,a1,-10,COLOR_ONE);
 
     }
 
@@ -338,12 +394,101 @@ int main() {
     srand(time(0));
     int width  = 600;
     int height = 600;
- 
-    //creates the window 
     window = initGLFW(width, height);
 
     initGL (window, width, height);
+
     glfwSetKeyCallback(window, key_callback);
+ 
+    //creates the window
+
+    //stuff related to FREETYPE 
+    
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    Shader shader("/home/tathagato/Hello-World/source/text.vs", "/home/tathagato/Hello-World/source/text.fs");
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));
+    shader.use();
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+    if (FT_Init_FreeType(&library)){
+
+        cout << "ERROR::FREETYPE: Could not init FreeType Library" << endl;
+        return -1;
+    }
+
+    if(FT_New_Face( library,"/usr/share/fonts/truetype/freefont/FreeSans.ttf",0,&face )){
+        cout<<"Error Loading Font"<<endl;
+    }
+    FT_Set_Pixel_Sizes(face, 0, 48); 
+    if (FT_Load_Char(face, 'X', FT_LOAD_RENDER)){
+
+        cout << "ERROR::FREETYTPE: Failed to load Glyph" << endl;  
+        return -1;
+    }
+    
+
+    //COPIED FOR FREETYPE
+
+    FT_Set_Pixel_Sizes(face, 0, 48);
+
+        // disable byte-alignment restriction
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+        // load first 128 characters of ASCII set
+        for (unsigned char c = 0; c < 128; c++)
+        {
+            // Load character glyph 
+            if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+            {
+                cout << "ERROR::FREETYTPE: Failed to load Glyph" << endl;
+                continue;
+            }
+            // generate texture
+            unsigned int texture;
+            glGenTextures(1, &texture);
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glTexImage2D(
+                GL_TEXTURE_2D,
+                0,
+                GL_RED,
+                face->glyph->bitmap.width,
+                face->glyph->bitmap.rows,
+                0,
+                GL_RED,
+                GL_UNSIGNED_BYTE,
+                face->glyph->bitmap.buffer
+            );
+            // set texture options
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            // now store character for later use
+            Character character = {
+                texture,
+                glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+                glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+                static_cast<unsigned int>(face->glyph->advance.x)
+            };
+            Characters.insert(std::pair<char, Character>(c, character));
+        }
+        glBindTexture(GL_TEXTURE_2D, 0);
+    
+    // destroy FreeType once we're finished
+    FT_Done_Face(face);
+    FT_Done_FreeType(library);
+
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    
 
     /* Draw in loop */
     while (!glfwWindowShouldClose(window)) {
@@ -352,8 +497,13 @@ int main() {
         if (t60.processTick()) {
             // 60 fps
             // OpenGL Draw commands
+            //glEnable(GL_BLEND);
             draw();
             // Swap Frame Buffer in double buffering
+            glEnable(GL_BLEND);
+            RenderText(shader, "This is sample text", 25.0f, 540.0f, 0.50f, glm::vec3(0.5, 0.8f, 0.2f));
+           // RenderText(shader, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
+            glDisable(GL_BLEND);
             glfwSwapBuffers(window);
             usleep(400000);
             tick_elements();

@@ -195,6 +195,7 @@ struct VAO *create3DObject(GLenum primitive_mode, int numVertices, const GLfloat
         color_buffer_data[3 * i]     = red;
         color_buffer_data[3 * i + 1] = green;
         color_buffer_data[3 * i + 2] = blue;
+      //  color_buffer_data[4 * i + 3] = 100.00;
     }
 
     return create3DObject(primitive_mode, numVertices, vertex_buffer_data, color_buffer_data, fill_mode);

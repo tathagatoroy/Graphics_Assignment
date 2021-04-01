@@ -13,6 +13,15 @@
 #include<stack>
 #include<algorithm>
 #include<unistd.h>
+//#include <ft2build.h>
+#include<map>
+//#include <glad/glad.h>
+#include <glm/glm.hpp>
+
+#include <string>
+#include <sstream>
+
+//#include FT_FREETYPE_H  
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -23,8 +32,15 @@ struct color_t {
     int r;
     int g;
     int b;
+    //int alpha
 };
-
+//freetype 
+struct Character {
+    unsigned int TextureID;  // ID handle of the glyph texture
+    glm::ivec2   Size;       // Size of glyph
+    glm::ivec2   Bearing;    // Offset from baseline to left/top of glyph
+    unsigned int Advance;    // Offset to advance to next glyph
+};
 // nonedit.cpp
 GLFWwindow *initGLFW(int width, int height);
 GLuint     LoadShaders(const char *vertex_file_path, const char *fragment_file_path);
@@ -91,6 +107,7 @@ extern const color_t COLOR_BACKGROUND;
 extern const color_t COLOR_ONE;
 extern const color_t COLOR_TWO;
 extern const color_t COLOR_THREE;
+extern const color_t COLOR_GOLD;
 /*extern const int HASH_CONSTANT = 1234;
 extern const int HEIGHT = 20;
 extern const int WIDTH = 20;*/

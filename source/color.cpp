@@ -8,3 +8,4 @@ const color_t COLOR_TWO = {110,15,240};
 const color_t COLOR_BACKGROUND = { 242, 241, 239 };
 const color_t COLOR_ONE = {1,1,253};
 const color_t COLOR_THREE = {120, 90 , 200};
+const color_t COLOR_GOLD = {255,215,0};

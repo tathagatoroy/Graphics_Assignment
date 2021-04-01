@@ -1,7 +1,7 @@
 #include "main.h"
 
-#ifndef BALL_H
-#define BALL_H
+#ifndef POWER_H
+#define POWER_H
 
 
 class Power {
@@ -11,7 +11,7 @@ public:
     glm::vec3 position;
     //float rotation;
     int present ;
-    int power;
+    int score;
     void draw(glm::mat4 VP);
     void set_position(float x, float y);
     //void tick();
