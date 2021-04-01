@@ -20,7 +20,7 @@ map<GLchar, Character> Characters;
 unsigned int vao, vbo;
 
 
-const int num_health = 1;
+const int num_health = 3;
 
 
 using namespace std;
@@ -312,8 +312,14 @@ int pow_x = (int)ball2.position.x;
 int pow_y = (int)ball2.position.y;
 int g_x = (int)gate.position.x;
 int g_y = (int)gate.position.y;
+int v_x = (int)villain.position.x;
+int v_y = (int)villain.position.y;
 
-
+if(villain.alive == 1 && v_x == cur_x && v_y == cur_y)
+{
+    end_time = time(NULL);
+    status = -1;
+}
 if(cur_x == g_x && cur_y == g_y && tasks_completed == total_tasks)
 {
    end_time = time(NULL);
@@ -422,6 +428,7 @@ if(villain.alive == 1){
     villain.tick(dir);
     else
     villain.tick(-1);
+    gate.tick();
 }
 
 
@@ -516,7 +523,10 @@ void initGL(GLFWwindow *window, int width, int height) {
 
 
 int main() {
-   
+    /*vec3 light(0.0f, 0.0f, 0.0f);
+    light.x = player.position.x;
+    light.y = player.position.y;
+    light.z = player.position.z;*/
     srand(time(0));
     int width  = 600;
     int height = 600;

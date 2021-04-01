@@ -8,7 +8,7 @@ Player::Player(float x, float y, color_t color) {
 
     // Our vertices. Three consecutive floats give a 3D vertex; Three consecutive vertices give a triangle.
     // A cube has 6 faces with 2 triangles each, so this makes 6*2=12 triangles, and 12*3 vertices
-     static const GLfloat vertex_buffer_data[] = {
+    /* static const GLfloat vertex_buffer_data[] = {
        //SQUARE DONE
        0.25,0.25,0.00,
        0.25,-0.25,0.00,
@@ -42,9 +42,180 @@ Player::Player(float x, float y, color_t color) {
 
 
       
-    };
+    };*/
     //total 4+7+3 lines
-    static const GLfloat color_buffer_data[] = {
+     double pi = 3.14159265;
+    int div = 10000;
+    int size = div*9;
+    double radius = 0.400;
+    int traingles = div*3 + 2+2;
+    int vertex = 3*traingles;
+
+    GLfloat vertex_buffer_data[3*vertex];
+    GLfloat color_buffer_data[3*vertex];
+    int ss = 0;
+    for(int i=0;i<div;i++)
+    {
+        double angle_1 = (pi/div)*(double)i;
+        double angle_2 = (pi/div)*(double)(i+1);
+        //First vertex centre
+        vertex_buffer_data[ss] = 0.00;
+        color_buffer_data[ss] = .100;
+        ss++;
+        vertex_buffer_data[ss] = 0.00;
+        color_buffer_data[ss] = .100;
+        ss++;
+        vertex_buffer_data[ss] = 0.00;
+        color_buffer_data[ss] = .900;
+        ss++;
+        //Second vertex
+        vertex_buffer_data[ss] = radius*cos(angle_1);
+        color_buffer_data[ss] = .100;
+        ss++;
+        vertex_buffer_data[ss] = radius*sin(angle_1);
+        color_buffer_data[ss] = .100;
+        ss++;
+        vertex_buffer_data[ss] = 0.00;
+        color_buffer_data[ss] = .900;
+        ss++;
+        //third Triangle:
+        vertex_buffer_data[ss] = radius*cos(angle_2);
+        color_buffer_data[ss] = .100;
+        ss++;
+        vertex_buffer_data[ss] = radius*sin(angle_2);
+        color_buffer_data[ss] = .100;
+        ss++;
+        vertex_buffer_data[ss] = 0.00;
+        color_buffer_data[ss] = .900;
+        ss++;
+    }
+    //RECTANGLE:
+    //2 TRIANGLE
+    vertex_buffer_data[ss] = radius;
+    color_buffer_data[ss] = 0.800;
+    ss++;
+    vertex_buffer_data[ss] = 0.00;
+    color_buffer_data[ss] = 0.400;
+    ss++;
+    vertex_buffer_data[ss] = 0.00;
+    color_buffer_data[ss] = 0.005;
+    ss++;
+
+    vertex_buffer_data[ss] = -radius;
+    color_buffer_data[ss] = 0.800;
+    ss++;
+    vertex_buffer_data[ss] = 0.00;
+    color_buffer_data[ss] = 0.400;
+    ss++;
+    vertex_buffer_data[ss] = 0.00;
+    color_buffer_data[ss] = 0.005;
+    ss++;
+
+    vertex_buffer_data[ss] = -radius;
+    color_buffer_data[ss] = 0.800;
+    ss++;
+    vertex_buffer_data[ss] = -0.300;
+    color_buffer_data[ss] = 0.400;
+    ss++;
+    vertex_buffer_data[ss] = 0.00;
+    color_buffer_data[ss] = 0.005;
+    ss++;
+
+   //NEXT TRAINGLE
+
+    vertex_buffer_data[ss] = -radius;
+    color_buffer_data[ss] = 0.800;
+    ss++;
+    vertex_buffer_data[ss] = -0.300;
+    color_buffer_data[ss] = 0.400;
+    ss++;
+    vertex_buffer_data[ss] = 0.00;
+    color_buffer_data[ss] = 0.005;
+    ss++;
+
+     vertex_buffer_data[ss] = radius;
+    color_buffer_data[ss] = 0.800;
+    ss++;
+    vertex_buffer_data[ss] = -0.300;
+    color_buffer_data[ss] = 0.400;
+    ss++;
+    vertex_buffer_data[ss] = 0.00;
+    color_buffer_data[ss] = 0.005;
+    ss++;
+
+
+     vertex_buffer_data[ss] = radius;
+    color_buffer_data[ss] = 0.800;
+    ss++;
+    vertex_buffer_data[ss] = 0.000;
+    color_buffer_data[ss] = 0.400;
+    ss++;
+    vertex_buffer_data[ss] = 0.00;
+    color_buffer_data[ss] = 0.005;
+    ss++;
+
+    //legs 
+    vertex_buffer_data[ss] = 0.10;
+    color_buffer_data[ss] = 0.10;
+    ss++;
+    vertex_buffer_data[ss] = -0.50;
+    color_buffer_data[ss] = 0.800;
+    ss++;
+    vertex_buffer_data[ss] = 0.00;
+    color_buffer_data[ss] = 0.300;
+    ss++;
+
+    vertex_buffer_data[ss] = 0.40;
+    color_buffer_data[ss] = 0.10;
+    ss++;
+    vertex_buffer_data[ss] = -0.50;
+    color_buffer_data[ss] = 0.800;
+    ss++;
+    vertex_buffer_data[ss] = 0.00;
+    color_buffer_data[ss] = 0.300;
+    ss++;
+
+    vertex_buffer_data[ss] = 0.25;
+    color_buffer_data[ss] = 0.10;
+    ss++;
+    vertex_buffer_data[ss] = -0.30;
+    color_buffer_data[ss] = 0.800;
+    ss++;
+    vertex_buffer_data[ss] = 0.00;
+    color_buffer_data[ss] = 0.300;
+    ss++;
+
+    vertex_buffer_data[ss] = -0.10;
+    color_buffer_data[ss] = 0.10;
+    ss++;
+    vertex_buffer_data[ss] = -0.50;
+    color_buffer_data[ss] = 0.800;
+    ss++;
+    vertex_buffer_data[ss] = 0.00;
+    color_buffer_data[ss] = 0.300;
+    ss++;
+
+    vertex_buffer_data[ss] = -0.40;
+    color_buffer_data[ss] = 0.10;
+    ss++;
+    vertex_buffer_data[ss] = -0.50;
+    color_buffer_data[ss] = 0.800;
+    ss++;
+    vertex_buffer_data[ss] = 0.00;
+    color_buffer_data[ss] = 0.300;
+    ss++;
+
+    vertex_buffer_data[ss] = -0.25;
+    color_buffer_data[ss] = 0.10;
+    ss++;
+    vertex_buffer_data[ss] = -0.30;
+    color_buffer_data[ss] = 0.800;
+    ss++;
+    vertex_buffer_data[ss] = 0.00;
+    color_buffer_data[ss] = 0.300;
+    ss++;
+
+    /*static const GLfloat color_buffer_data[] = {
 
         0.8,0.2,0.2,
         0.8,0.2,0.2,
@@ -65,9 +236,9 @@ Player::Player(float x, float y, color_t color) {
         0.2,0.9,0.2,
         0.2,0.9,0.2,
         0.2,0.9,0.2
-    };
+    };*/
 
-    this->object = create3DObject(GL_TRIANGLES, 5*3, vertex_buffer_data, color_buffer_data, GL_FILL);
+    this->object = create3DObject(GL_TRIANGLES, ss/3, vertex_buffer_data, color_buffer_data, GL_FILL);
 
 }
 
