@@ -44,7 +44,7 @@ void Power::set_position(float x, float y) {
     this->position = glm::vec3(x, y, 0);
 }
 void Power::eaten(){
-    this->present = 0;
+    this->present = -1;
 }
 void Power::activate(){
     this->present = 1;

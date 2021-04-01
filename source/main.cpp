@@ -11,15 +11,16 @@
 #include "powerups.h"
 #include "shader.h"
 #include <ft2build.h>
+#include "gate.h"
 #include FT_FREETYPE_H
-
+int end_time = 0;
 FT_Library  library;   /* handle to library     */
 FT_Face     face;      /* handle to face object */
 map<GLchar, Character> Characters;
 unsigned int vao, vbo;
 
 
-
+const int num_health = 1;
 
 
 using namespace std;
@@ -41,9 +42,12 @@ Maze second; //maze ,sorry for the stupid name.Carried over from last assignment
 Shape3 third;
 Player hero;
 Imposter villain;
-Power obstacles[10];
-Power health[10];
+Power obstacles[num_health];
+Power health[num_health];
+Gate gate;
 int object = -1;
+int status = -1;
+int iteration = 0;
 
  int total_tasks = 11;
  int tasks_completed = 0;
@@ -107,6 +111,68 @@ void RenderText(Shader &shader, std::string text, float x, float y, float scale,
 }
 
 
+
+void end_game(int r,Shader &shader)
+{
+      //  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // clear the color and depth in the frame buffer
+    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // use the loaded shader program
+    // Don't change unless you know what you are doing
+    glUseProgram (programID);
+
+    // Eye - Location of camera. Don't change unless you are sure!!
+    //position of camera  (5,0,0)
+    
+                
+    glm::vec3 eye (camera_x, camera_y,camera_z);
+    //cout<<glm::to_string(eye) ;
+    // Target - Where is the camera looking at.  Don't change unless you are sure!!
+    glm::vec3 target (target_x,target_y,target_z);
+    glm::vec3 direction = glm::normalize(eye-target);
+    
+    // Up - Up vector defines tilt of camera.  Don't change unless you are sure!!
+    glm::vec3 up (0, 1, 0);
+
+    // Compute Camera matrix (view)
+    Matrices.view = glm::lookAt( eye, target, up ); // Rotating Camera for 3D
+    // Don't change unless you are sure!!
+    // Matrices.view = glm::lookAt(glm::vec3(0, 0, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)); // Fixed camera for 2D (ortho) in XY plane
+
+    // Compute ViewProject matrix as view/camera might not be changed for this frame (basic scenario)
+    // Don't change unless you are sure!!
+    Matrices.projection = glm::perspective(glm::radians(45.0f), (float) 600 / (float) 600, 0.1f, 100.0f);   // Far clipping plane. Keep as little as possible.);
+    glm::mat4 VP = Matrices.projection * Matrices.view;
+
+    // Send our transformation to the currently bound shader, in the "MVP" uniform
+    // For each model you render, since the MVP will be different (at least the M part)
+    // Don't change unless you are sure!!
+    glm::mat4 MVP;  // MVP = Projection * View * Model
+    second.draw(VP);
+
+    char buf[100];
+    if(r == 1)
+    sprintf(buf,"GAME OVER ,YOU WON,FINISHED ALL TASKED AND MANAGED TO EXIT");
+    else if(r==0) 
+    sprintf(buf,"GAME OVER, TIME OVER ,YOU LOST");
+    else if(r == -1)
+    sprintf(buf,"GAME OVER, NO HEALTH LEFT,YOU LOST");
+    string ss;
+            int len = strlen(buf);
+            for(int i = 0 ;i< len;i++)
+            ss.push_back(buf[i]);
+              glEnable(GL_BLEND);
+            cout<<ss<<endl;
+            RenderText(shader, ss, 25.0f, 540.0f, 0.30f, glm::vec3(0.5, 0.8f, 0.2f));
+           // RenderText(shader, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
+            glDisable(GL_BLEND);
+
+            usleep(10000000);
+            exit(1);
+    
+
+}
 /* Render the scene with openGL */
 /* Edit this function according to your assignment */
 void draw() {
@@ -149,18 +215,19 @@ void draw() {
   
     second.draw(VP);
     
-    cout<<villain.alive<<endl;
+  //  cout<<villain.alive<<endl;
   
-      cout<<"DRAWING VILLAIN"<<endl;
+  //    cout<<"DRAWING VILLAIN"<<endl;
     
     
     
     ball1.draw(VP);
     ball2.draw(VP);
-    for(int i=0;i<10;i++){
+    for(int i=0;i<num_health;i++){
         health[i].draw(VP);
         obstacles[i].draw(VP);
     }
+    gate.draw(VP);
     villain.draw(VP);
     hero.draw(VP);
 }
@@ -216,6 +283,19 @@ if(object == 3)
       if(next_x <= WIDTH && second.graph[cur_y][cur_x+1][cur_y + 1][cur_x+1] == 0)
         hero.move_right();
   }
+
+  if(key == GLFW_KEY_T && action == GLFW_PRESS){
+      int z = rand() % 400;
+      int y = z % 20;
+      int x = z / 20;
+      float y1 = (int)y + 0.50;
+      float x1 = (int)x + 0.50;
+      hero.set_position(x1,y1);
+  }
+  if(key == GLFW_KEY_Q && action == GLFW_PRESS){
+      exit(1);
+  }
+  
 }
    
 
@@ -230,24 +310,34 @@ int button_x = (int)ball1.position.x;
 int button_y = (int)ball1.position.y;
 int pow_x = (int)ball2.position.x;
 int pow_y = (int)ball2.position.y;
+int g_x = (int)gate.position.x;
+int g_y = (int)gate.position.y;
+
+
+if(cur_x == g_x && cur_y == g_y && tasks_completed == total_tasks)
+{
+   end_time = time(NULL);
+   status = 1;
+}
+
 //check you can kill the villain
 if(cur_x == button_x && button_y == cur_y && ball1.present == 1)
 {
     villain.kill();
     ball1.eaten();
-    cout<<"VILLAIN DEAD"<<endl;
+   // cout<<"VILLAIN DEAD"<<endl;
 }
 //check you can activate powerups
 if(cur_x == pow_x && cur_y == pow_y && ball2.present == 1){
     ball2.eaten();
-    for(int i=0;i<10;i++){
+    for(int i=0;i<num_health;i++){
         health[i].activate();
         obstacles[i].activate();
     }
     cout<<"ACTIVATE"<<endl;
 }
 //checking whether gained some powerups
-for(int i = 0;i<10;i++)
+for(int i = 0;i<num_health;i++)
 {
     int h_x = (int)health[i].position.x;
     int h_y = (int)health[i].position.y;
@@ -255,12 +345,12 @@ for(int i = 0;i<10;i++)
     {
         health[i].eaten();
         hero.reduce_health(health[i].score);
-        cout<<"HEALTH GAINED"<<endl;
+      //  cout<<"HEALTH GAINED"<<endl;
 
     }
 
 }
-for(int i = 0;i<10;i++)
+for(int i = 0;i<num_health;i++)
 {
     int h_x = (int)obstacles[i].position.x;
     int h_y = (int)obstacles[i].position.y;
@@ -268,7 +358,7 @@ for(int i = 0;i<10;i++)
     {
         obstacles[i].eaten();
         hero.reduce_health(obstacles[i].score);
-        cout<<"HEALTH LOST"<<endl;
+      //  cout<<"HEALTH LOST"<<endl;
 
     }
     //cout<<"HEALTH LOST"<<endl;
@@ -328,8 +418,9 @@ if(villain.alive == 1){
             }
         }
     }
-
-    //villain.tick(dir);
+    if(iteration % 50 == 0)
+    villain.tick(dir);
+    else
     villain.tick(-1);
 }
 
@@ -341,16 +432,48 @@ if(villain.alive == 1){
 void initGL(GLFWwindow *window, int width, int height) {
     /* Objects should be created before any other gl function and shaders */
     // Create the models
+    int num = rand() % 400;//height *width;
+        int y = num / 20;
+        float y1 = (float)y + 0.50;
+        int x = num % 20;
+        float x1 = (float)x + 0.50;
 
-    ball1       = Ball(6.50, 8.50, COLOR_GREEN);
-    ball2       = Ball(4.50,2.50,COLOR_THREE);
+    ball1       = Ball(x1, y1, COLOR_GREEN);
+
+    num = rand() % 400;//height *width;
+     y = num / 20;
+     y1 = (float)y + 0.50;
+     x = num % 20;
+     x1 = (float)x + 0.50;
+    ball2       = Ball(x1,y1,COLOR_THREE);
+
 
     second    = Maze(0, 0, COLOR_RED);
-    first         = Shape1(0,0,COLOR_RED);
-    third       = Shape3(0,0, COLOR_RED);
-    hero       = Player(5.50,5.50,COLOR_RED);
-    villain    = Imposter(13.50,11.50,COLOR_RED);
-    for(int i = 0;i < 10; i++ )
+
+
+    num = rand() % 400;//height *width;
+     y = num / 20;
+     y1 = (float)y + 0.50;
+     x = num % 20;
+     x1 = (float)x + 0.50;
+    //first         = Shape1(0,0,COLOR_RED);
+    //third       = Shape3(0,0, COLOR_RED);
+    hero       = Player(x1,y1,COLOR_RED);
+
+    num = rand() % 400;//height *width;
+     y = num / 20;
+     y1 = (float)y + 0.50;
+     x = num % 20;
+     x1 = (float)x + 0.50;
+    villain    = Imposter(x1,y1,COLOR_RED);
+
+    num = rand() % 400;//height *width;
+     y = num / 20;
+     y1 = (float)y + 0.50;
+     x = num % 20;
+     x1 = (float)x + 0.50;
+     gate = Gate(x1,y1,COLOR_BLACK);
+    for(int i = 0;i < num_health; i++ )
     {
         int num = rand() % 400;//height *width;
         int y = num / 20;
@@ -492,37 +615,53 @@ int main() {
     glBindVertexArray(0);
 
     int start_time = time(NULL);
-    int end_time = start_time + 500;
+     end_time = start_time + 500;
+     total_tasks = num_health + 1;
 
     /* Draw in loop */
     while (!glfwWindowShouldClose(window)) {
+       // iteration ++;
         // Process timers
 
         if (t60.processTick()) {
             // 60 fps
             // OpenGL Draw commands
             //glEnable(GL_BLEND);
-            draw();
-
+          //  if(end_time <= time(NULL))
+          //  end_game(0,shader);
+           // draw();
+            iteration ++;
 
             //creating the string to render the
 
              tasks_completed = 0;
-             for(int i=0;i<5;i++){
+             for(int i=0;i<num_health;i++){
                  if(health[i].present == -1){
                      tasks_completed++;
                  }
-                 if(obstacles[i].present == -1){
+               /*  if(obstacles[i].present == -1){
                      tasks_completed++;
-                 }
+                 }*/
              } 
              if(villain.alive == 0){
                  tasks_completed++;
              }
              char print_out[100];
              int time_left = end_time - time(NULL);
-             
-             sprintf(print_out,"HEALTH : %d  TASK COMPLETED : %d TASK LEFT : %d LIGHT: ON TIME_LEFT : %d",hero.health,tasks_completed,total_tasks-tasks_completed,time_left);
+             if(time_left < -2)
+             exit(1);
+            else if(time_left > 0)
+            { 
+                sprintf(print_out,"HEALTH : %d  TASK COMPLETED : %d TASK LEFT : %d LIGHT: ON TIME_LEFT : %d",hero.health,tasks_completed,total_tasks-tasks_completed,time_left);
+                draw();
+            }
+            else 
+             {  glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+             if(status == 1)
+                sprintf(print_out,"CONGRAGULATIONS , YOU WON");
+                else
+                 sprintf(print_out,"GAME OVER,TIMES UP,YOU LOST");
+             }
             string ss;
             int len = strlen(print_out);
             for(int i = 0 ;i< len;i++)
@@ -534,7 +673,8 @@ int main() {
            // RenderText(shader, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
             glDisable(GL_BLEND);
             glfwSwapBuffers(window);
-            usleep(400000);
+            //usleep(400000);
+            
             tick_elements();
           //  tick_input(window);
         }
@@ -558,3 +698,4 @@ void reset_screen() {
     float right  = screen_center_x + 4 / screen_zoom;
     Matrices.projection = glm::ortho(left, right, bottom, top, 0.1f, 500.0f);
 }
+

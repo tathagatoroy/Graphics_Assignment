@@ -103,5 +103,5 @@ void Player::move_down(){
 }
 
 void Player::reduce_health(int x){
-    this->health -= x;
+    this->health += x;
 }
