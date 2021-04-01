@@ -20,6 +20,8 @@ unsigned int vao, vbo;
 
 
 
+
+
 using namespace std;
 
 const unsigned int SCR_WIDTH = 600;
@@ -43,7 +45,8 @@ Power obstacles[10];
 Power health[10];
 int object = -1;
 
-
+ int total_tasks = 11;
+ int tasks_completed = 0;
 
 float screen_zoom = 1, screen_center_x = 0, screen_center_y = 0;
 float camera_rotation_angle = 0;
@@ -488,7 +491,8 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    
+    int start_time = time(NULL);
+    int end_time = start_time + 500;
 
     /* Draw in loop */
     while (!glfwWindowShouldClose(window)) {
@@ -499,9 +503,34 @@ int main() {
             // OpenGL Draw commands
             //glEnable(GL_BLEND);
             draw();
+
+
+            //creating the string to render the
+
+             tasks_completed = 0;
+             for(int i=0;i<5;i++){
+                 if(health[i].present == -1){
+                     tasks_completed++;
+                 }
+                 if(obstacles[i].present == -1){
+                     tasks_completed++;
+                 }
+             } 
+             if(villain.alive == 0){
+                 tasks_completed++;
+             }
+             char print_out[100];
+             int time_left = end_time - time(NULL);
+             
+             sprintf(print_out,"HEALTH : %d  TASK COMPLETED : %d TASK LEFT : %d LIGHT: ON TIME_LEFT : %d",hero.health,tasks_completed,total_tasks-tasks_completed,time_left);
+            string ss;
+            int len = strlen(print_out);
+            for(int i = 0 ;i< len;i++)
+            ss.push_back(print_out[i]);
+            cout<<ss<<endl;
             // Swap Frame Buffer in double buffering
             glEnable(GL_BLEND);
-            RenderText(shader, "This is sample text", 25.0f, 540.0f, 0.50f, glm::vec3(0.5, 0.8f, 0.2f));
+            RenderText(shader, ss, 25.0f, 540.0f, 0.30f, glm::vec3(0.5, 0.8f, 0.2f));
            // RenderText(shader, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
             glDisable(GL_BLEND);
             glfwSwapBuffers(window);
