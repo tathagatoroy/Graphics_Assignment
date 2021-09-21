@@ -1,5 +1,8 @@
-# Hello-World
-Repository with code for students to test their OpenGL installation. 
+# Assignment 1
+This was an assignment in my Computer Graphics course where we had to create a 2D maze with a player whose objective was to collect coins ,avoid enemies and then reach the exit door while having positive health.
+This project also contains some code from an earlier assignment which was an introductory one in openGL to render different composite shapes.
+
+
 
 # The Shapes rendered
 elongated square dipyramid 
