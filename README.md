@@ -1,6 +1,7 @@
 # Assignment 1
 This was an assignment in my Computer Graphics course where we had to create a 2D maze with a player whose objective was to collect coins ,avoid enemies and then reach the exit door while having positive health.
 This project also contains some code from an earlier assignment which was an introductory one in openGL to render different composite shapes.
+It also contains a bit of boilerplate code which is not mine but was given to us by the course TAs.I have now removed some of their instructions in the readme which I regret  now.
 
 
 
